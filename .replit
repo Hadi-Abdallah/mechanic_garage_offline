@@ -1,0 +1,59 @@
+modules = ["nodejs-20"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+runButton = "run garage"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "MechanicGarageApp"
+
+[[workflows.workflow]]
+name = "MechanicGarageApp"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx next dev -p 5000"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "run garage"
+mode = "sequential"
+author = 40627691
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Project"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx next dev -p 3000"
+
+[deployment]
+run = ["sh", "-c", "npm install && npm run dev"]
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
